@@ -10,7 +10,7 @@ CC32XX ?= 0
 ###
 ## COMPILER NAME
 ###
-COMPILER ?= ti-cgt-arm_16.9.6.LTS
+COMPILER ?= ti-cgt-arm_18.1.3.LTS
 
 ###
 ## MAC HOST OS
@@ -20,7 +20,7 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 
 	XI_CC3220SF_PATH_CCS_TOOLS ?= /Applications/ti/ccsv7/tools
 	XI_CC3220SF_PATH_SDK ?= /Applications/ti/simplelink_cc32xx_sdk_1_50_00_06
-	XI_CC3220SF_PATH_XDC_SDK ?= /Applications/ti/xdctools_3_50_03_33_core
+	XI_CC3220SF_PATH_XDC_SDK ?= /Applications/ti/xdctools_3_50_04_43_core
 
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
@@ -34,10 +34,10 @@ ifeq ($(XI_HOST_PLATFORM),Darwin)
 else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
 	 # windows cross-compilation
 
-    XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv7/tools
+    XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv8/tools
 
-	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_1_60_00_04
-	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_03_33_core
+	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_2_10_00_04
+	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_08_24_core
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
@@ -102,12 +102,15 @@ endif
 XI_COMPILER_FLAGS += -DCC32XX_COMPAT=1
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/driverlib
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source
-XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net/ota/source
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/posix/ccs
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi
-XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi/bsd
-XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi/bsd/sys
-XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/drivers/net/wifi/bsd/arpa
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net/bsd
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net/bsd/sys
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net/bsd/arpa
+XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/net/ota/source
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/inc
 
 # clock

@@ -4,9 +4,7 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <arpa/inet.h>
+#include <simplelink.h>
 #include <netinet/in.h>
 
 /******************************************************************************
@@ -15,7 +13,7 @@
  *                                                                            *
  ******************************************************************************/
 #include "xi_bsp_time_cc3220sf_sntp.h"
-#include "simplelink.h"
+#include "xi_bsp_hton.h"
 
 /******************************************************************************
  *                                                                            *
@@ -25,14 +23,18 @@
 
 #define TASK_NAME "SNTP_Task"
 #define STACK_SIZE ( 2 * 512 )
-#define SNTP_RCV_TO_SEC 30
+#define SNTP_RCV_TO_SEC 15
 
 #define NTP_UPDATE_MS ( 10 * 60 * 1000 ) /* 10 Minutes */
 #define NTP_RETRY_MS ( 1 * 60 * 1000 )   /*  1 Minute  */
 
 #define NTP_SERVER_NAMES                                                                 \
     {                                                                                    \
-        "pool.ntp.org", "time-a.nist.gov", "time-b.nist.gov", "time-c.nist.gov"          \
+        "time.google.com",                                                               \
+        "time.nist.gov",                                                                 \
+        "utcnist.colorado.edu",                                                          \
+        "utcnist2.colorado.edu",                                                         \
+        "nist-time-server.eoni.com"                                                      \
     }
 
 
@@ -226,15 +228,15 @@ static ntp_time_t sntp_get( uint32_t server_addr )
     uint8_t sntp_request[SNTP_MSG_LEN];
     uint8_t sntp_response[SNTP_MSG_LEN];
     int s;
-    struct sockaddr_in local_sa;
-    struct sockaddr_in ntp_sa;
-    socklen_t sa_len;
-    struct timeval rcv_to;
+    SlSockAddrIn_t local_sa;
+    SlSockAddrIn_t ntp_sa;
+    SlSocklen_t sa_len;
+    SlTimeval_t rcv_to;
     ntp_time_t timestamp;
     int status;
     ntp_time_t rval;
 
-    sa_len = sizeof( struct sockaddr_in );
+    sa_len = sizeof( SlSockAddrIn_t );
     errno  = 0;
     rval   = 0;
 
@@ -246,7 +248,7 @@ static ntp_time_t sntp_get( uint32_t server_addr )
             break;
         }
 
-        if ( ( s = socket( AF_INET, SOCK_DGRAM, 0 ) ) < 0 )
+        if ( ( s = sl_Socket( SL_AF_INET, SL_SOCK_DGRAM, 0 ) ) < 0 )
         {
             errno  = s;
             status = SNTP_SOCKET_ERR;
@@ -257,11 +259,11 @@ static ntp_time_t sntp_get( uint32_t server_addr )
          * Bind to local address
          */
         memset( &local_sa, 0, sizeof( local_sa ) );
-        local_sa.sin_family      = AF_INET;
+        local_sa.sin_family      = SL_AF_INET;
         local_sa.sin_port        = htons( INADDR_ANY );
         local_sa.sin_addr.s_addr = htonl( INADDR_ANY );
 
-        if ( ( status = bind( s, ( struct sockaddr* )&local_sa, sa_len ) ) != 0 )
+        if ( ( status = sl_Bind( s, ( SlSockAddr_t* )&local_sa, sa_len ) ) != 0 )
         {
             errno  = status;
             status = SNTP_BIND_ERR;
@@ -272,7 +274,7 @@ static ntp_time_t sntp_get( uint32_t server_addr )
          *  Setup server address
          */
         memset( &ntp_sa, 0, sizeof( ntp_sa ) );
-        ntp_sa.sin_family      = AF_INET;
+        ntp_sa.sin_family      = SL_AF_INET;
         ntp_sa.sin_port        = htons( SNTP_PORT );
         ntp_sa.sin_addr.s_addr = server_addr;
 
@@ -287,7 +289,7 @@ static ntp_time_t sntp_get( uint32_t server_addr )
          */
         rcv_to.tv_sec = SNTP_RCV_TO_SEC;
 
-        if ( ( status = setsockopt( s, SOL_SOCKET, SO_RCVTIMEO, &rcv_to,
+        if ( ( status = sl_SetSockOpt( s, SL_SOL_SOCKET, SL_SO_RCVTIMEO, &rcv_to,
                                     sizeof( rcv_to ) ) ) != 0 )
         {
             errno  = status;
@@ -298,8 +300,8 @@ static ntp_time_t sntp_get( uint32_t server_addr )
         /*
          *  Send SNTP request
          */
-        if ( ( status = sendto( s, sntp_request, sizeof( sntp_request ), 0,
-                                ( struct sockaddr* )&ntp_sa, sa_len ) ) < 0 )
+        if ( ( status = sl_SendTo( s, sntp_request, sizeof( sntp_request ), 0,
+                                ( SlSockAddr_t* )&ntp_sa, sa_len ) ) < 0 )
         {
             errno  = status;
             status = SNTP_SENDTO_ERR;
@@ -309,8 +311,8 @@ static ntp_time_t sntp_get( uint32_t server_addr )
         /*
          *  Receive SNTP response
          */
-        status = recvfrom( s, sntp_response, sizeof( sntp_response ), 0,
-                           ( struct sockaddr* )&ntp_sa, &sa_len );
+        status = sl_RecvFrom( s, sntp_response, sizeof( sntp_response ), 0,
+                           ( SlSockAddr_t* )&ntp_sa, &sa_len );
 
         /*
          *  Check SNTP response
@@ -348,7 +350,7 @@ static ntp_time_t sntp_get( uint32_t server_addr )
 
     if ( s >= 0 )
     {
-        close( s );
+        sl_Close( s );
     }
 
 

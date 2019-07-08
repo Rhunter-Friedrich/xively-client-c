@@ -4,13 +4,13 @@
  * it is licensed under the BSD 3-Clause license.
  */
 
-#include <sys/socket.h>
-#include <sys/select.h>
-#include <arpa/inet.h>
+#include <simplelink.h>
 #include <xi_bsp_io_net.h>
 #include <stdio.h>
 #include <xi_debug.h>
 #include <xi_bsp_debug.h>
+
+#include "xi_bsp_hton.h"
 
 #ifdef XI_BSP_IO_NET_TLS_SOCKET
 /* Use TLS on Hardware */
@@ -140,7 +140,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_create_socket( xi_bsp_socket_t* xi_socket )
 #endif /* XI_BSP_IO_NET_TLS_SOCKET */
 
     int sl_nonblockingOption = 1;
-    retval                   = sl_SetSockOpt( *xi_socket, SOL_SOCKET, SL_SO_NONBLOCKING,
+    retval                   = sl_SetSockOpt( *xi_socket, SL_SOL_SOCKET, SL_SO_NONBLOCKING,
                             &sl_nonblockingOption, sizeof( sl_nonblockingOption ) );
 
     if ( retval < 0 )
@@ -182,13 +182,13 @@ xi_bsp_io_net_connect( xi_bsp_socket_t* xi_socket, const char* host, uint16_t po
         return XI_BSP_IO_NET_STATE_ERROR;
     }
 
-    struct sockaddr_in name = {.sin_family      = SL_AF_INET, /* SL_AF_INET */
+    SlSockAddrIn_t name = {.sin_family      = SL_AF_INET, /* SL_AF_INET */
                                .sin_port        = htons( port ),
                                .sin_addr.s_addr = htonl( uiIP ),
                                .sin_zero        = {0}};
 
     errval =
-        sl_Connect( *xi_socket, ( struct sockaddr* )&name, sizeof( struct sockaddr ) );
+        sl_Connect( *xi_socket, ( SlSockAddr_t* )&name, sizeof( SlSockAddr_t ) );
 
     if ( SL_ERROR_BSD_ESECUNKNOWNROOTCA == errval )
     {
@@ -278,19 +278,19 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
                                             size_t socket_events_array_size,
                                             long timeout_sec )
 {
-    fd_set rfds;
-    fd_set wfds;
-    fd_set efds;
+    SlFdSet_t rfds;
+    SlFdSet_t wfds;
+    SlFdSet_t efds;
 
-    FD_ZERO( &rfds );
-    FD_ZERO( &wfds );
-    FD_ZERO( &efds );
+    SL_SOCKET_FD_ZERO( &rfds );
+    SL_SOCKET_FD_ZERO( &wfds );
+    SL_SOCKET_FD_ZERO( &efds );
 
     int max_fd_read  = 0;
     int max_fd_write = 0;
     int max_fd_error = 0;
 
-    struct timeval tv = {0, 0};
+    SlTimeval_t tv = {0, 0};
 
     /* translate the library socket events settings to the event sets used by posix
        select */
@@ -306,7 +306,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
         if ( 1 == socket_events->in_socket_want_read )
         {
-            FD_SET( socket_events->xi_socket, &rfds );
+            SL_SOCKET_FD_SET( socket_events->xi_socket, &rfds );
             max_fd_read = socket_events->xi_socket > max_fd_read
                               ? socket_events->xi_socket
                               : max_fd_read;
@@ -315,7 +315,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
         if ( ( 1 == socket_events->in_socket_want_write ) ||
              ( 1 == socket_events->in_socket_want_connect ) )
         {
-            FD_SET( socket_events->xi_socket, &wfds );
+            SL_SOCKET_FD_SET( socket_events->xi_socket, &wfds );
             max_fd_write = socket_events->xi_socket > max_fd_write
                                ? socket_events->xi_socket
                                : max_fd_write;
@@ -323,7 +323,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
 
         if ( 1 == socket_events->in_socket_want_error )
         {
-            FD_SET( socket_events->xi_socket, &efds );
+            SL_SOCKET_FD_SET( socket_events->xi_socket, &efds );
             max_fd_error = socket_events->xi_socket > max_fd_error
                                ? socket_events->xi_socket
                                : max_fd_error;
@@ -336,7 +336,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
     tv.tv_sec = 1;
 
     /* call the actual posix select */
-    const int result = select( max_fd + 1, &rfds, &wfds, &efds, &tv );
+    const int result = sl_Select( max_fd + 1, &rfds, &wfds, &efds, &tv );
 
     if ( 0 < result )
     {
@@ -345,12 +345,12 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
         {
             xi_bsp_socket_events_t* socket_events = &socket_events_array[socket_id];
 
-            if ( FD_ISSET( socket_events->xi_socket, &rfds ) )
+            if ( SL_SOCKET_FD_ISSET( socket_events->xi_socket, &rfds ) )
             {
                 socket_events->out_socket_can_read = 1;
             }
 
-            if ( FD_ISSET( socket_events->xi_socket, &wfds ) )
+            if ( SL_SOCKET_FD_ISSET( socket_events->xi_socket, &wfds ) )
             {
                 if ( 1 == socket_events->in_socket_want_connect )
                 {
@@ -363,7 +363,7 @@ xi_bsp_io_net_state_t xi_bsp_io_net_select( xi_bsp_socket_events_t* socket_event
                 }
             }
 
-            if ( FD_ISSET( socket_events->xi_socket, &efds ) )
+            if ( SL_SOCKET_FD_ISSET( socket_events->xi_socket, &efds ) )
             {
                 socket_events->out_socket_error = 1;
             }
