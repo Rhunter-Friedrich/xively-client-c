@@ -269,6 +269,13 @@ xi_bsp_io_net_state_t xi_bsp_io_net_read( xi_bsp_socket_t xi_socket,
 
 xi_bsp_io_net_state_t xi_bsp_io_net_close_socket( xi_bsp_socket_t* xi_socket )
 {
+    if ((NULL == xi_socket)
+        || (0 > xi_socket)
+        || (0 > *xi_socket))
+    {
+        return XI_BSP_IO_NET_STATE_ERROR;    
+    }
+    
     sl_Close( *xi_socket );
 
     return XI_BSP_IO_NET_STATE_OK;
