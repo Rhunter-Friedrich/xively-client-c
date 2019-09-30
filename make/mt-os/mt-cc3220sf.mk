@@ -37,7 +37,7 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
     XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv8/tools
 
 	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_2_10_00_04
-	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_08_24_core
+	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_05_12_core
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
@@ -117,6 +117,11 @@ XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/inc
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/kernel/tirtos/packages
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_XDC_SDK)/packages
 
+# GN: starting 3.10.4 .. ;)
+# GN: dirent.h
+XI_CONFIG_FLAGS += -DNO_WOLFSSL_DIR
+# GN: fcntl.h
+XI_CONFIG_FLAGS += -DWOLFSSL_USER_IO
 
 # Xively Client config flags
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
