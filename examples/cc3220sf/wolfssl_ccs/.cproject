@@ -32,6 +32,8 @@
 								<option id="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE.1016586571" name="Pre-define NAME (--define, -D)" superClass="com.ti.ccstudio.buildDefinitions.TMS470_16.9.compilerID.DEFINE" valueType="definedSymbols">
 									<listOptionValue builtIn="false" value="${XDC_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_SYMBOLS}"/>
+									<listOptionValue builtIn="false" value="USE_FAST_MATH"/>
+									<listOptionValue builtIn="false" value="HAVE_ECC"/>
 									<listOptionValue builtIn="false" value="cc3220sf"/>
 									<listOptionValue builtIn="false" value="DEBUG_WOLFSSL"/>
 									<listOptionValue builtIn="false" value="CC32XXWARE"/>

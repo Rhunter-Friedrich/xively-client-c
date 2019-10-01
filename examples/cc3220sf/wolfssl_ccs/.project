@@ -51,6 +51,11 @@
 			<locationURI>WOLFSSL_DIR/wolfcrypt/src/dh.c</locationURI>
 		</link>
 		<link>
+			<name>wolfcrypt/ecc.c</name>
+			<type>1</type>
+			<locationURI>WOLFSSL_DIR/wolfcrypt/src/ecc.c</locationURI>
+		</link>
+		<link>
 			<name>wolfcrypt/error.c</name>
 			<type>1</type>
 			<locationURI>WOLFSSL_DIR/wolfcrypt/src/error.c</locationURI>
@@ -106,6 +111,11 @@
 			<locationURI>WOLFSSL_DIR/wolfcrypt/src/sha256.c</locationURI>
 		</link>
 		<link>
+			<name>wolfcrypt/tfm.c</name>
+			<type>1</type>
+			<locationURI>WOLFSSL_DIR/wolfcrypt/src/tfm.c</locationURI>
+		</link>
+		<link>
 			<name>wolfcrypt/wc_encrypt.c</name>
 			<type>1</type>
 			<locationURI>WOLFSSL_DIR/wolfcrypt/src/wc_encrypt.c</locationURI>
@@ -116,14 +126,19 @@
 			<locationURI>WOLFSSL_DIR/wolfcrypt/src/wc_port.c</locationURI>
 		</link>
 		<link>
+			<name>wolfcrypt/wolfmath.c</name>
+			<type>1</type>
+			<locationURI>WOLFSSL_DIR/wolfcrypt/src/wolfmath.c</locationURI>
+		</link>
+		<link>
 			<name>wolfssl/internal.c</name>
 			<type>1</type>
 			<locationURI>WOLFSSL_DIR/src/internal.c</locationURI>
 		</link>
 		<link>
-			<name>wolfssl/io.c</name>
+			<name>wolfssl/wolfio.c</name>
 			<type>1</type>
-			<locationURI>WOLFSSL_DIR/src/io.c</locationURI>
+			<locationURI>WOLFSSL_DIR/src/wolfio.c</locationURI>
 		</link>
 		<link>
 			<name>wolfssl/keys.c</name>
