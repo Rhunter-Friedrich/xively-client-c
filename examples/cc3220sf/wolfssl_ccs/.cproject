@@ -33,7 +33,6 @@
 									<listOptionValue builtIn="false" value="${XDC_SYMBOLS}"/>
 									<listOptionValue builtIn="false" value="WOLFSSL_BASE64_ENCODE"/>
 									<listOptionValue builtIn="false" value="${COM_TI_SIMPLELINK_CC32XX_SDK_SYMBOLS}"/>
-									<listOptionValue builtIn="false" value="USE_FAST_MATH"/>
 									<listOptionValue builtIn="false" value="HAVE_ECC"/>
 									<listOptionValue builtIn="false" value="cc3220sf"/>
 									<listOptionValue builtIn="false" value="DEBUG_WOLFSSL"/>
