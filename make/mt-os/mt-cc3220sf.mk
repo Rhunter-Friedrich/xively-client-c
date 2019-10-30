@@ -117,18 +117,45 @@ XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/source/ti/devices/cc32xx/inc
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_SDK)/kernel/tirtos/packages
 XI_COMPILER_FLAGS += -I$(XI_CC3220SF_PATH_XDC_SDK)/packages
 
+
 # Xively Client config flags
 XI_CONFIG_FLAGS += -DXI_CROSS_TARGET
 XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=Report
 #XI_CONFIG_FLAGS += -DXI_CC3220SF_UNSAFELY_DISABLE_CERT_STORE #Will also disable the store's CRL
 
+
 # wolfssl API
+
+# GN:  the following set of defines arguably belong in make/mt-config/mt-tls-wolfssl.mk .. not specific to cc3220
+#
+#    note: file configuration changed due to experimentiion w/ libIOTC and integration of wSSL 3.10.7 ... 
+#    fwiw :
+#			<name>wolfcrypt/ecc.c</name>
+# 			<name>wolfcrypt/tfm.c</name>
+# 			<name>wolfcrypt/wolfmath.c</name>
+#			<name>wolfssl/wolfio.c</name> ... and this one renamed from "io.c"
+#
+#   added to wSSL .cproject: 
+#			<listOptionValue builtIn="false" value="HAVE_ECC"/>
+#
+XI_CONFIG_FLAGS += -DHAVE_ECC
+# re "wolfcrypt/settings.h" ... #warning directive: "For timing resistance / side-channel attack prevention consider using harden options
+#XI_CONFIG_FLAGS += -DTFM_TIMING_RESISTANT    # if (defined(USE_FAST_MATH) 
+# if  (defined(HAVE_ECC) 
+XI_CONFIG_FLAGS += -DECC_TIMING_RESISTANT 
+# if (!defined(NO_RSA) && !defined(WC_RSA_BLINDING) && !defined(HAVE_FIPS) &&  !defined(WC_NO_RNG))
+XI_CONFIG_FLAGS += -DWC_RSA_BLINDING
+
+
 XI_CONFIG_FLAGS += -DNO_WRITEV
 XI_CONFIG_FLAGS += -DSINGLE_THREADED
+
 #  with wolfssl 3.10.4 and later
 XI_CONFIG_FLAGS += -DNO_WOLFSSL_DIR
+# re  "wolfssl/wolfio.h" .... fatal error #1965: cannot open source file "fcntl.h"
 XI_CONFIG_FLAGS += -DWOLFSSL_USER_IO
+
 
 XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a

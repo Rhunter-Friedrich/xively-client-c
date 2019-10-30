@@ -52,9 +52,14 @@ then
     echo
     exit 1
 fi
+
+#
+# GN: re wSSL version ... I went w/ 3.15.7
+#   https://github.com/wolfSSL/wolfssl/issues/1415
+#
 git clone https://github.com/wolfSSL/wolfssl
 cd wolfssl
-git checkout tags/v3.15.5-stable
+git checkout tags/v3.15.7-stable
 (autoreconf --install && ./configure `cat ../wolfssl.conf` && make )
 echo "WolfSSL Build Complete."
 
