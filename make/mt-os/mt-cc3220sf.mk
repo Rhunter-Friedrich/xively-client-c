@@ -37,7 +37,7 @@ else ifneq (,$(findstring Windows,$(XI_HOST_PLATFORM)))
     XI_CC3220SF_PATH_CCS_TOOLS ?= C:/ti/ccsv8/tools
 
 	XI_CC3220SF_PATH_SDK ?= C:/ti/simplelink_cc32xx_sdk_2_10_00_04
-	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_08_24_core
+	XI_CC3220SF_PATH_XDC_SDK ?= C:/ti/xdctools_3_50_05_12_core
 
 	CC = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armcl
 	AR = $(XI_CC3220SF_PATH_CCS_TOOLS)/compiler/$(COMPILER)/bin/armar
@@ -124,9 +124,38 @@ XI_CONFIG_FLAGS += -DXI_EMBEDDED_TESTS
 XI_CONFIG_FLAGS += -DXI_DEBUG_PRINTF=Report
 #XI_CONFIG_FLAGS += -DXI_CC3220SF_UNSAFELY_DISABLE_CERT_STORE #Will also disable the store's CRL
 
+
 # wolfssl API
+
+# GN:  the following set of defines arguably belong in make/mt-config/mt-tls-wolfssl.mk .. not specific to cc3220
+#
+#    note: file configuration changed due to experimentiion w/ libIOTC and integration of wSSL 3.10.7 ... 
+#    fwiw :
+#			<name>wolfcrypt/ecc.c</name>
+# 			<name>wolfcrypt/tfm.c</name>
+# 			<name>wolfcrypt/wolfmath.c</name>
+#			<name>wolfssl/wolfio.c</name> ... and this one renamed from "io.c"
+#
+#   added to wSSL .cproject: 
+#			<listOptionValue builtIn="false" value="HAVE_ECC"/>
+#
+XI_CONFIG_FLAGS += -DHAVE_ECC
+# re "wolfcrypt/settings.h" ... #warning directive: "For timing resistance / side-channel attack prevention consider using harden options
+#XI_CONFIG_FLAGS += -DTFM_TIMING_RESISTANT    # if (defined(USE_FAST_MATH) 
+# if  (defined(HAVE_ECC) 
+XI_CONFIG_FLAGS += -DECC_TIMING_RESISTANT 
+# if (!defined(NO_RSA) && !defined(WC_RSA_BLINDING) && !defined(HAVE_FIPS) &&  !defined(WC_NO_RNG))
+XI_CONFIG_FLAGS += -DWC_RSA_BLINDING
+
+
 XI_CONFIG_FLAGS += -DNO_WRITEV
 XI_CONFIG_FLAGS += -DSINGLE_THREADED
+
+#  with wolfssl 3.10.4 and later
+XI_CONFIG_FLAGS += -DNO_WOLFSSL_DIR
+# re  "wolfssl/wolfio.h" .... fatal error #1965: cannot open source file "fcntl.h"
+XI_CONFIG_FLAGS += -DWOLFSSL_USER_IO
+
 
 XI_ARFLAGS := r $(XI)
 XI_LIB_FLAGS := -llibxively.a
